@@ -17,9 +17,10 @@ class DocumentMeta(type):
         return type.__call__(cls, *args, **kwargs)
 
     def collection(cls, db):
-        db.connection.document_class = cls
+#        db.connection.document_class = cls
         collection = getattr(db, cls.__collection__)
         collection.__class__ = CollectionProxy
+        collection.__itemclass__ = cls
         return collection
       
 class BaseDocument(object):
