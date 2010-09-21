@@ -32,7 +32,7 @@ class DocumentTest(unittest.TestCase):
     def test_init_document(self):
           post = Post()
           assert len(post._fields)==3
-          issubclass(post.__class__, Document)
+          assert issubclass(post.__class__, Document)
           post.title = 'first post title'
           post.content = 'first post content'
           assert post.title == 'first post title'
@@ -45,15 +45,15 @@ class DocumentTest(unittest.TestCase):
               'content': 'first post content',
               'title': 'first post title modified'
           }
-
-          Post.collection(db).insert(post._to_dict())
-
+          Post.collection(db).insert(post)
           post = Post.collection(db).find_one()
-
+          assert post.__class__ == Post
           assert post.title == u'first post title modified'
-          print(post._to_dict())
+          assert post.content == u'first post content'
+          Post.collection(db).remove({})
+          assert Post.collection(db).find_one() == None
 
-          print(post._id)
+          print Post.collection(db)
 #          db.posts.remove()
 
 if __name__ == '__main__':

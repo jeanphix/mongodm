@@ -1,3 +1,5 @@
+from mongodm.collection import CollectionProxy
+
 class ValidationError:
     pass
 
@@ -16,8 +18,10 @@ class DocumentMeta(type):
 
     def collection(cls, db):
         db.connection.document_class = cls
-        return getattr(db, cls.__collection__)
-
+        collection = getattr(db, cls.__collection__)
+        collection.__class__ = CollectionProxy
+        return collection
+      
 class BaseDocument(object):
 
     __metaclass__ = DocumentMeta
@@ -28,14 +32,13 @@ class BaseDocument(object):
 
 
     def __setitem__(self, key, value):
-        
         setattr(self, key, value)
+
 
     def _to_dict(self):
         dict = {}
         if self._id:
             dict['_id'] = self._id
-        print('to_dict')
         for field in self._fields:
             if getattr(self, field):
                 dict[field] = self._fields[field]._to_dict()
