@@ -4,7 +4,9 @@ class CollectionProxy(pymongo.collection.Collection):
     """ collection proxy """
     def insert(self, document, *args, **kwargs):
         """ proxying insert """
-        return super(CollectionProxy, self).insert(document._to_dict(), *args, **kwargs)
+        document._id = super(CollectionProxy, self).insert(document._to_dict(),
+                                                            *args, **kwargs)
+        return document._id
 
     def find(self, *args, **kwargs):
         """ proxying find """

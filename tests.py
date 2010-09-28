@@ -74,18 +74,18 @@ class DocumentTest(unittest.TestCase):
         Post.collection(db).insert(post)
         #retrieving
         postback = Post.collection(db).find_one()
-        print(postback._to_dict())
+        assert postback._id == post._id
 
     def testUp(self):
-      pass
+        pass
 
     def get_db(self):
         connection = Connection('localhost', 27017)
         connection.document_class=Document
         return connection['test-database']
 
-#    def tearDown(self):
-#        Post.collection(self.get_db()).remove()
+    def tearDown(self):
+        Post.collection(self.get_db()).remove()
 
 
 if __name__ == '__main__':
