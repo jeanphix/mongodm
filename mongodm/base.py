@@ -1,67 +1,76 @@
+from inspect import isclass
 from mongodm.collection import CollectionProxy
+import pdb
 
 class ValidationError:
     pass
 
 class DocumentMeta(type):
 
-    def __call__(cls, *args, **kwargs):
-        """
-        Construct new Document instance, settings _fields
-        """
-        if cls._fields is None:
-            cls._fields = {}
-        for name in dir(cls):
-            if not name.startswith('_'):
-                cls._fields[name] = getattr(cls, name)
-        return type.__call__(cls, *args, **kwargs)
-
     def collection(cls, db):
-#        db.connection.document_class = cls
+        """ getting pymongo collection for document class """
         collection = getattr(db, cls.__collection__)
         collection.__class__ = CollectionProxy
         collection.__itemclass__ = cls
         return collection
       
 class BaseDocument(object):
-
+    
     __metaclass__ = DocumentMeta
 
-    _fields = None
-
-    _id = None
+    def __init__(self):
+        """ constructor """
+        self._id = None
+        self._fields = {}
+        self._datas = {}
+        #building private datas and fields
+        for name in dir(self.__class__):
+            if not name.startswith('_'):
+                field = getattr(self.__class__, name)
+                field.name = name
+                self._fields[name] = field
+                self._datas[name] = self._fields[name].get_default() #default datas
 
 
     def __setitem__(self, key, value):
+        """ list style data access (required for pymongo)"""
         setattr(self, key, value)
 
+    def __setattr__(self, name, value, validate=False):
+        """ setting attribute """
+        if not name.startswith('_') and self._fields.has_key(name):
+            if validate:
+                if self._fields[name].validate(value):
+                    self._datas[name] = value
+                else:
+                    raise ValidationError
+            else:
+                self._datas[name] = value
+        else:
+            super(BaseDocument, self).__setattr__(name, value)
 
     def _to_dict(self):
         dict = {}
-        if self._id:
-            dict['_id'] = self._id
         for field in self._fields:
-            if getattr(self, field):
-                dict[field] = self._fields[field]._to_dict()
+            dict[field] = self._fields[field]._to_dict(self._datas[field])
         return dict
 
 class BaseField(object):
 
-    _value = None
-
-    def __set__(self, instance, value):
-        if(self._validate(value)):
-            self._value = value
+    name = None
 
     def __get__(self, instance, owner):
         if instance is None:
             return self
         else:
-            return self._value
-
-    def _validate(self, value):
-#        raise ValidationError
+            if instance._datas:
+                return instance._datas[self.name]
+        
+    def validate(self, value):
         return True
 
-    def _to_dict(self):
-        return self._value
+    def _to_dict(self, value):
+        return value
+
+    def get_default(self):
+        return ''

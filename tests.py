@@ -1,60 +1,92 @@
 import unittest
 import pymongo
 import mongodm
+import pdb
 
-from mongodm.base import BaseDocument
-from mongodm.document import Document
-from mongodm.fields import StringField, ListField
+from mongodm.document import Document, EmbeddedDocument
+from mongodm.fields import StringField, ListField, EmbeddedDocumentField
 from pymongo import Connection
+
+class User(EmbeddedDocument):
+    first_name = StringField()
+    last_name = StringField()
 
 class Post(Document):
     __collection__ = 'posts'
     title = StringField()
     content = StringField()
     comments = ListField('Comment')
+    created_by = EmbeddedDocumentField('User')
 
-class Comment(Document):
-    author = StringField
-    message = StringField
-
-class Reply(Document):
-    author = StringField
-    message = StringField
-
-#connection = Connection('localhost', 27017)
-connection = Connection('localhost', 27017)
-connection.document_class=Document
-db = connection['test-database']
-
+class Comment(EmbeddedDocument):
+    author = StringField()
+    message = StringField()
+    replies = ListField('Comment')
 
 class DocumentTest(unittest.TestCase):
 
-    def test_init_document(self):
-          post = Post()
-          assert len(post._fields)==3
-          assert issubclass(post.__class__, Document)
-          post.title = 'first post title'
-          post.content = 'first post content'
-          assert post.title == 'first post title'
-          assert post._to_dict()=={
-              'content': 'first post content',
-              'title': 'first post title'
-          }
-          post.title = 'first post title modified'
-          assert post._to_dict()=={
-              'content': 'first post content',
-              'title': 'first post title modified'
-          }
-          Post.collection(db).insert(post)
-          post = Post.collection(db).find_one()
-          assert post.__class__ == Post
-          assert post.title == u'first post title modified'
-          assert post.content == u'first post content'
-          Post.collection(db).remove({})
-          assert Post.collection(db).find_one() == None
+    def testSimpleDocument(self):
+        post = Post()
+        assert len(post._fields)==4
+        assert issubclass(post.__class__, Document)
+        post.title = 'first post title'
+        post.content = 'first post content'
+        assert post.title == 'first post title'
+        assert post.content == 'first post content'
 
-          print Post.collection(db)
-#          db.posts.remove()
+    def testEmbeddedDocument(self):
+        post = Post()
+        user = User()
+        user.first_name = 'paul'
+        user.last_name = 'dupont'
+        post.created_by = user
+        assert post.created_by.first_name=='paul'
+        assert post.created_by.last_name=='dupont'
+        user.first_name = 'jean'
+        assert post.created_by.first_name=='jean'
+
+    def testListField(self):
+        post = Post()
+        user = User()
+        user.first_name = 'paul'
+        user.last_name = 'dupont'
+        post.created_by = user
+        comment = Comment()
+        comment.author = 'jean-philippe'
+        comment.message = 'my message'
+        post.comments.append(comment)
+        assert post._to_dict() == {
+            'content': '',
+            'comments': [
+                    {'message': 'my message',
+                    'author': 'jean-philippe', 'replies': []}
+                ], 'created_by': {'first_name': 'paul', 'last_name': 'dupont'},
+            'title': ''}
+        reply = Comment()
+        reply.author = 'jean-philippe'
+        reply.message = 'reply to my message'
+        comment.replies.append(reply)
+        assert post.comments[0].replies[0].message == 'reply to my message'
+        assert post.comments[0].replies[0].author == 'jean-philippe'
+
+        #persists
+        db = self.get_db()
+        Post.collection(db).insert(post)
+        #retrieving
+        postback = Post.collection(db).find_one()
+        print(postback._to_dict())
+
+    def testUp(self):
+      pass
+
+    def get_db(self):
+        connection = Connection('localhost', 27017)
+        connection.document_class=Document
+        return connection['test-database']
+
+#    def tearDown(self):
+#        Post.collection(self.get_db()).remove()
+
 
 if __name__ == '__main__':
     unittest.main()
