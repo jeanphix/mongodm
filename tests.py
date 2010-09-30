@@ -79,7 +79,7 @@ class DocumentTest(unittest.TestCase):
         assert postback.__class__.__name__ == 'MongoDocument'
         assert postback._id == post._id
         assert postback.comments[0].replies[0].message == 'reply to my message'
-        assert post.comments[0].replies[0].author == 'jean-philippe'
+        assert postback.comments[0].replies[0].author == 'jean-philippe'
 
     def testUp(self):
         pass
