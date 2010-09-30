@@ -84,7 +84,10 @@ class DocumentTest(unittest.TestCase):
         assert postbacked.__class__ == Post
         assert postbacked.created_by.__class__ == User
         assert postbacked.created_by.first_name == 'paul'
-        assert postbacked.created_by.last_name == 'dupond'
+        assert postbacked.created_by.last_name == 'dupont'
+        assert postbacked.comments[0].replies[0].__class__ == Comment
+        assert postbacked.comments[0].replies[0].message == 'reply to my message'
+        assert postbacked.comments[0].replies[0].author == 'jean-philippe'
 
     def testUp(self):
         pass

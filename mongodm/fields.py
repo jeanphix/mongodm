@@ -2,7 +2,7 @@ from mongodm.base import BaseField, get_document_class
 
 class ListField(BaseField):
     def __init__(self, allowed):
-        self.allowed = allowed
+        self._allowed = allowed
 
     def _to_dict(self, value):
         """ getting collection as dict """
@@ -12,7 +12,10 @@ class ListField(BaseField):
         return dict
 
     def _from_dict(self, object, datas):
-        setattr(object, self.name, datas)
+        list = []
+        for document in datas:
+            list.append(get_document_class(self._allowed)(datas=document._datas))
+        setattr(object, self.name, list)
 
     def get_default(self):
         return []
@@ -23,12 +26,12 @@ class StringField(BaseField):
 class EmbeddedDocumentField(BaseField):
 
     def __init__(self, allowed):
-        self._allowed_class = get_document_class(allowed)
+        self._allowed = allowed
 
     def _to_dict(self, value):
         if value:
             return value._to_dict()
 
     def _from_dict(self, object, datas):
-        embedded = self._allowed_class(datas=datas._datas)
+        embedded = get_document_class(self._allowed)(datas=datas._datas)
         setattr(object, self.name, embedded)

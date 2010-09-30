@@ -28,8 +28,6 @@ class BaseDocument(object):
 
     def __init__(self, datas=None):
         """ constructor """
-        _document_registry[self.__class__.__name__] = self.__class__
-
         self._id = None
         self._fields = {}
         self._datas = {}
