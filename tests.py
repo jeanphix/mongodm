@@ -60,9 +60,9 @@ class DocumentTest(unittest.TestCase):
         assert post._to_dict() == {
             'content': 'first post content',
             'comments': [
-                    {'message': 'my message',
-                    'author': 'jean-philippe', 'replies': []}
-                ], 'created_by': {'first_name': 'paul', 'last_name': 'dupont'},
+                {'message': 'my message',
+                'author': 'jean-philippe', 'replies': []}
+            ], 'created_by': {'first_name': 'paul', 'last_name': 'dupont'},
             'title': 'first post title'}
         reply = Comment()
         reply.author = 'jean-philippe'
@@ -75,11 +75,16 @@ class DocumentTest(unittest.TestCase):
         db = self.get_db()
         Post.collection(db).insert(post)
         #retrieving
-        postback = Post.collection(db).find_one()
-        assert postback.__class__.__name__ == 'MongoDocument'
-        assert postback._id == post._id
-        assert postback.comments[0].replies[0].message == 'reply to my message'
-        assert postback.comments[0].replies[0].author == 'jean-philippe'
+        document = Post.collection(db).find_one()
+        assert document.__class__.__name__ == 'MongoDocument'
+        assert document._id == post._id
+        assert document.comments[0].replies[0].message == 'reply to my message'
+        assert document.comments[0].replies[0].author == 'jean-philippe'
+        postbacked = document.to(Post)
+        assert postbacked.__class__ == Post
+        assert postbacked.created_by.__class__ == User
+        assert postbacked.created_by.first_name == 'paul'
+        assert postbacked.created_by.last_name == 'dupond'
 
     def testUp(self):
         pass

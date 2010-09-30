@@ -1,11 +1,19 @@
-from inspect import isclass
 from mongodm.collection import CollectionProxy
-import pdb
+
+_document_registry = {}
+
+def get_document_class(name):
+    return _document_registry[name]
 
 class ValidationError:
     pass
 
 class DocumentMeta(type):
+
+    def __new__(cls, name, bases, attrs):
+        new_class = super(DocumentMeta, cls).__new__(cls, name, bases, attrs)
+        _document_registry[name] = new_class
+        return new_class
 
     def collection(cls, db):
         """ getting pymongo collection for document class """
@@ -18,8 +26,10 @@ class BaseDocument(object):
     
     __metaclass__ = DocumentMeta
 
-    def __init__(self):
+    def __init__(self, datas=None):
         """ constructor """
+        _document_registry[self.__class__.__name__] = self.__class__
+
         self._id = None
         self._fields = {}
         self._datas = {}
@@ -29,8 +39,10 @@ class BaseDocument(object):
                 field = getattr(self.__class__, name)
                 field.name = name
                 self._fields[name] = field
-                self._datas[name] = self._fields[name].get_default() #default datas
-
+                if datas and datas[name]:
+                    self._fields[name]._from_dict(self, datas[name])
+                else:
+                    self._datas[name] = self._fields[name].get_default() #default datas
 
     def __setitem__(self, key, value):
         """ list style data access (required for pymongo)"""
@@ -68,10 +80,14 @@ class BaseField(object):
                 return instance._datas[self.name]
         
     def validate(self, value):
+        """ validate datas """
         return True
 
     def _to_dict(self, value):
         return value
+
+    def _from_dict(self, object, datas):
+        setattr(object, self.name, datas)
 
     def get_default(self):
         return None
