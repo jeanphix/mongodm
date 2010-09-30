@@ -47,6 +47,8 @@ class DocumentTest(unittest.TestCase):
 
     def testListField(self):
         post = Post()
+        post.title = 'first post title'
+        post.content = 'first post content'
         user = User()
         user.first_name = 'paul'
         user.last_name = 'dupont'
@@ -56,12 +58,12 @@ class DocumentTest(unittest.TestCase):
         comment.message = 'my message'
         post.comments.append(comment)
         assert post._to_dict() == {
-            'content': '',
+            'content': 'first post content',
             'comments': [
                     {'message': 'my message',
                     'author': 'jean-philippe', 'replies': []}
                 ], 'created_by': {'first_name': 'paul', 'last_name': 'dupont'},
-            'title': ''}
+            'title': 'first post title'}
         reply = Comment()
         reply.author = 'jean-philippe'
         reply.message = 'reply to my message'
@@ -74,19 +76,20 @@ class DocumentTest(unittest.TestCase):
         Post.collection(db).insert(post)
         #retrieving
         postback = Post.collection(db).find_one()
+        print postback.content
+        print postback._datas
         assert postback._id == post._id
+
 
     def testUp(self):
         pass
 
     def get_db(self):
         connection = Connection('localhost', 27017)
-        connection.document_class=Document
         return connection['test-database']
 
     def tearDown(self):
         Post.collection(self.get_db()).remove()
-
 
 if __name__ == '__main__':
     unittest.main()

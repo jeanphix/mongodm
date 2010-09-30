@@ -13,7 +13,7 @@ class DocumentMeta(type):
         collection.__class__ = CollectionProxy
         collection.__itemclass__ = cls
         return collection
-      
+
 class BaseDocument(object):
     
     __metaclass__ = DocumentMeta
@@ -34,8 +34,9 @@ class BaseDocument(object):
 
     def __setitem__(self, key, value):
         """ list style data access (required for pymongo)"""
-#        print(key)
-#        print(value)
+        if issubclass(value.__class__, self.__class__):
+            print(key)
+            print(value._datas)
         setattr(self, key, value)
 
     def __setattr__(self, name, value, validate=False):
@@ -52,6 +53,7 @@ class BaseDocument(object):
             super(BaseDocument, self).__setattr__(name, value)
 
     def _to_dict(self):
+        """ getting datas as dict """
         dict = {}
         for field in self._fields:
             dict[field] = self._fields[field]._to_dict(self._datas[field])
@@ -75,4 +77,4 @@ class BaseField(object):
         return value
 
     def get_default(self):
-        return ''
+        return None
