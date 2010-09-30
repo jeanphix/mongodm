@@ -79,6 +79,7 @@ class DocumentTest(unittest.TestCase):
         print postback.content
         print postback._datas
         assert postback._id == post._id
+        assert postback.comments[0].replies[0].message == 'reply to my message'
 
 
     def testUp(self):

@@ -35,8 +35,6 @@ class BaseDocument(object):
     def __setitem__(self, key, value):
         """ list style data access (required for pymongo)"""
         if issubclass(value.__class__, self.__class__):
-            print(key)
-            print(value._datas)
         setattr(self, key, value)
 
     def __setattr__(self, name, value, validate=False):
