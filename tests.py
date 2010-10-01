@@ -11,17 +11,17 @@ class User(EmbeddedDocument):
     first_name = StringField()
     last_name = StringField()
 
-class Post(Document):
-    __collection__ = 'posts'
-    title = StringField()
-    content = StringField()
-    comments = ListField('Comment')
-    created_by = EmbeddedDocumentField('User')
-
 class Comment(EmbeddedDocument):
     author = StringField()
     message = StringField()
     replies = ListField('Comment')
+
+class Post(Document):
+    __collection__ = 'posts'
+    title = StringField()
+    content = StringField()
+    comments = ListField(Comment)
+    created_by = EmbeddedDocumentField('User')
 
 class DocumentTest(unittest.TestCase):
 
@@ -89,7 +89,9 @@ class DocumentTest(unittest.TestCase):
         assert postbacked.comments[0].replies[0].message == 'reply to my message'
         assert postbacked.comments[0].replies[0].author == 'jean-philippe'
         assert post._id == postbacked._id
-
+        Post.collection(db).insert(postbacked)
+        assert post._id == postbacked._id #check if it was an update
+        
     def testUp(self):
         pass
 

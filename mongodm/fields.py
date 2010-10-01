@@ -13,8 +13,10 @@ class ListField(BaseField):
 
     def _from_dict(self, object, datas):
         list = []
+        if isinstance(self._allowed, str):
+            self._allowed = get_document_class(self._allowed)
         for document in datas:
-            list.append(get_document_class(self._allowed)(datas=document._datas))
+            list.append(self._allowed(datas=document._datas))
         setattr(object, self.name, list)
 
     def get_default(self):
@@ -33,5 +35,7 @@ class EmbeddedDocumentField(BaseField):
             return value._to_dict()
 
     def _from_dict(self, object, datas):
-        embedded = get_document_class(self._allowed)(datas=datas._datas)
+        if isinstance(self._allowed, str):
+            self._allowed = get_document_class(self._allowed)
+        embedded = self._allowed(datas=datas._datas)
         setattr(object, self.name, embedded)
