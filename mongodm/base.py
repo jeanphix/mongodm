@@ -85,10 +85,7 @@ class BaseField(object):
     def validate(self, value):
         """ validate datas """
         for validator in self._validators:
-#            try:
             validator(value)
-#            except:
-#                ValidationError
         return True
 
     def _to_dict(self, value):

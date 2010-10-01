@@ -19,7 +19,7 @@ class Regex(object):
         self.message = message
         
     def __call__(self, value):
-        if not self.regex.match(value or u''):
+        if value and not self.regex.match(value or u''):
             raise ValidationError(self.message)
             
 class Email(Regex):
@@ -28,3 +28,11 @@ class Email(Regex):
     """
     def __init__(self, message=_(u'Invalid email address.')):
         super(Email, self).__init__(r'^.+@[^.].*\.[a-z]{2,10}$', re.IGNORECASE, message)
+
+class Required(object):
+    def __init__(self, message=_(u'Required.')):
+        self.message = message
+
+    def __call__(self, value):
+        if not value or isinstance(value, basestring) and not value.strip():
+            raise ValidationError(self.message)

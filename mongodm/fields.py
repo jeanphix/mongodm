@@ -50,6 +50,7 @@ class StringField(BaseField):
     pass
 
 class EmailField(BaseField):
-    def __init__(self, validators=[Email()], *args, **kwargs):
+    def __init__(self, validators=[], *args, **kwargs):
         """ constructor """
+        validators.extend([Email()])
         super(EmailField, self).__init__(validators=validators, *args, **kwargs)

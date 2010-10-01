@@ -3,7 +3,8 @@ import unittest
 from mongodm.document import Document, EmbeddedDocument
 from mongodm.fields import StringField, ListField, EmbeddedDocumentField
 from mongodm.fields import EmailField
-from mongodm.validators import ValidationError
+from mongodm.validators import ValidationError, Required
+from mongodm.ext.wtforms import get_form
 from pymongo import Connection
 
 class User(EmbeddedDocument):
@@ -99,6 +100,19 @@ class DocumentTest(unittest.TestCase):
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], 'foo.bar')
         self.assertRaises(ValidationError, setattr, author, 'email_address', 'foo')
         self.assertRaises(ValidationError, setattr, author, 'email_address', 'foo.bar')
+
+    def testRequiredValidator(self):
+        class Author(Document):
+            email_address = EmailField(validators=[Required()])
+        author = Author()
+        self.assertRaises(ValidationError, author._fields['email_address']._validators[0], '')
+        self.assertRaises(ValidationError, setattr, author, 'email_address', '')
+
+    def testForm(self):
+        class Author(Document):
+            email_address = EmailField()
+        author = Author()
+        form_class = get_form(author)
 
     def testUp(self):
         pass
