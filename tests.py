@@ -4,8 +4,10 @@ from mongodm.document import Document, EmbeddedDocument
 from mongodm.fields import StringField, ListField, EmbeddedDocumentField
 from mongodm.fields import EmailField
 from mongodm.validators import ValidationError, Required
-from mongodm.ext.wtforms import get_form
+from mongodm.ext.wtf import MongodmForm
 from pymongo import Connection
+import wtforms
+
 
 class User(EmbeddedDocument):
     first_name = StringField()
@@ -108,11 +110,20 @@ class DocumentTest(unittest.TestCase):
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], '')
         self.assertRaises(ValidationError, setattr, author, 'email_address', '')
 
-    def testForm(self):
+    def testWTForm(self):
         class Author(Document):
             email_address = EmailField()
-        author = Author()
-        form_class = get_form(author)
+
+        class AuthorForm(MongodmForm):
+            __forclass__ = Author
+            email_address = wtforms.TextField('Email Address')
+
+        form = AuthorForm()
+        form.process(email_address = 'toto')
+        assert form.data == {'email_address' : 'toto'} #wtforms ok
+        form.validate()
+        assert form.errors != {} #MongodmForm ok
+        assert form.errors == {'email_address': [u'Invalid email address.']}
 
     def testUp(self):
         pass
