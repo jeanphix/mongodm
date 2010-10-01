@@ -1,7 +1,4 @@
 import unittest
-import pymongo
-import mongodm
-import pdb
 
 from mongodm.document import Document, EmbeddedDocument
 from mongodm.fields import StringField, ListField, EmbeddedDocumentField
@@ -91,7 +88,9 @@ class DocumentTest(unittest.TestCase):
         assert post._id == postbacked._id
         Post.collection(db).insert(postbacked)
         assert post._id == postbacked._id #check if it was an update
-        
+
+
+
     def testUp(self):
         pass
 
