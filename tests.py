@@ -97,6 +97,8 @@ class DocumentTest(unittest.TestCase):
         author = Author()
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], 'foo')
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], 'foo.bar')
+        self.assertRaises(ValidationError, setattr, author, 'email_address', 'foo')
+        self.assertRaises(ValidationError, setattr, author, 'email_address', 'foo.bar')
 
     def testUp(self):
         pass
