@@ -1,5 +1,4 @@
 from wtforms import Form
-from wtforms.form import FormMeta
 
 class MongodmForm(Form):
 
@@ -10,8 +9,8 @@ class MongodmForm(Form):
         success = super(MongodmForm, self).validate()
         for name in dir(self.__forclass__):
             if not name.startswith('_'):
-                field = getattr(self.__forclass__, name)
                 if hasattr(self, name):
+                    field = getattr(self.__forclass__, name)
                     try:
                         field.validate(getattr(getattr(self, name), 'data'))
                     except ValueError, e:
