@@ -1,16 +1,16 @@
 from mongodm.collection import CollectionProxy
+from mongodm.validators import ValidationError
 
 _document_registry = {}
 
 def get_document_class(name):
     return _document_registry[name]
 
-class ValidationError:
-    pass
 
 class DocumentMeta(type):
 
     def __new__(cls, name, bases, attrs):
+        """ registering document classes """
         new_class = super(DocumentMeta, cls).__new__(cls, name, bases, attrs)
         _document_registry[name] = new_class
         return new_class
@@ -46,16 +46,13 @@ class BaseDocument(object):
         """ list style data access (required for pymongo)"""
         setattr(self, key, value)
 
-    def __setattr__(self, name, value, validate=False):
+    def __setattr__(self, name, value):
         """ setting attribute """
         if not name.startswith('_') and self._fields.has_key(name):
-            if validate:
-                if self._fields[name].validate(value):
-                    self._datas[name] = value
-                else:
-                    raise ValidationError
-            else:
+            if self._fields[name].validate(value):
                 self._datas[name] = value
+            else:
+                raise ValidationError
         else:
             super(BaseDocument, self).__setattr__(name, value)
 
@@ -71,9 +68,14 @@ class BaseDocument(object):
 
 class BaseField(object):
 
-    name = None
+    name = None #bounded name
+
+    def __init__(self, validators=[]):
+        """ constructor """
+        self._validators=validators
 
     def __get__(self, instance, owner):
+        """ foreign getter """
         if instance is None:
             return self
         else:
@@ -82,6 +84,11 @@ class BaseField(object):
         
     def validate(self, value):
         """ validate datas """
+        for validator in self._validators:
+#            try:
+            validator(value)
+#            except:
+#                ValidationError
         return True
 
     def _to_dict(self, value):

@@ -1,10 +1,12 @@
 from mongodm.base import BaseField, get_document_class
+from mongodm.validators import Email
 
 class ListField(BaseField):
-    def __init__(self, allowed):
+    def __init__(self, allowed, *args, **kwargs):
         """ construct """
         self._allowed = allowed
-
+        super(ListField, self).__init__(*args, **kwargs)
+        
     def _to_dict(self, value):
         """ getting collection as dict """
         dict = []
@@ -27,9 +29,10 @@ class ListField(BaseField):
       
 class EmbeddedDocumentField(BaseField):
 
-    def __init__(self, allowed):
+    def __init__(self, allowed, *args, **kwargs):
         """ construct """
         self._allowed = allowed
+        super(EmbeddedDocumentField, self).__init__(*args, **kwargs)
 
     def _to_dict(self, value):
         """ getting embedded document as dict """
@@ -45,3 +48,8 @@ class EmbeddedDocumentField(BaseField):
 
 class StringField(BaseField):
     pass
+
+class EmailField(BaseField):
+    def __init__(self, validators=[Email()], *args, **kwargs):
+        """ constructor """
+        super(EmailField, self).__init__(validators=validators, *args, **kwargs)

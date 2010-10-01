@@ -2,6 +2,8 @@ import unittest
 
 from mongodm.document import Document, EmbeddedDocument
 from mongodm.fields import StringField, ListField, EmbeddedDocumentField
+from mongodm.fields import EmailField
+from mongodm.validators import ValidationError
 from pymongo import Connection
 
 class User(EmbeddedDocument):
@@ -89,7 +91,12 @@ class DocumentTest(unittest.TestCase):
         Post.collection(db).insert(postbacked)
         assert post._id == postbacked._id #check if it was an update
 
-
+    def testEmailValidator(self):
+        class Author(Document):
+            email_address = EmailField()
+        author = Author()
+        self.assertRaises(ValidationError, author._fields['email_address']._validators[0], 'foo')
+        self.assertRaises(ValidationError, author._fields['email_address']._validators[0], 'foo.bar')
 
     def testUp(self):
         pass
