@@ -15,7 +15,8 @@ class MongodmForm(Form):
                     try:
                         field.validate(getattr(getattr(self, name), 'data'))
                     except ValueError, e:
+                        success = False
                         getattr(self, name).errors.append(e.args[0])                        
-        return
+        return success
   
     
