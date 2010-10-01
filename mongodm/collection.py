@@ -16,7 +16,7 @@ class MongoDocument(object):
         return self._datas[key]
 
     def to(self, new_class):
-        object = new_class(datas = self._datas)
+        object = new_class(_id=self._id, datas = self._datas)
         return object
 
 class CollectionProxy(pymongo.collection.Collection):

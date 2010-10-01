@@ -26,9 +26,9 @@ class BaseDocument(object):
     
     __metaclass__ = DocumentMeta
 
-    def __init__(self, datas=None):
+    def __init__(self, _id=None,  datas=None):
         """ constructor """
-        self._id = None
+        self._id = _id
         self._fields = {}
         self._datas = {}
         #building private datas and fields
@@ -61,7 +61,10 @@ class BaseDocument(object):
 
     def _to_dict(self):
         """ getting datas as dict """
-        dict = {}
+        if self._id:
+            dict = {'_id': self._id}
+        else:
+            dict={}
         for field in self._fields:
             dict[field] = self._fields[field]._to_dict(self._datas[field])
         return dict

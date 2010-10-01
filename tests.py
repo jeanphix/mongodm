@@ -88,6 +88,7 @@ class DocumentTest(unittest.TestCase):
         assert postbacked.comments[0].replies[0].__class__ == Comment
         assert postbacked.comments[0].replies[0].message == 'reply to my message'
         assert postbacked.comments[0].replies[0].author == 'jean-philippe'
+        assert post._id == postbacked._id
 
     def testUp(self):
         pass
