@@ -3,7 +3,7 @@ import unittest
 from mongodm.document import Document, EmbeddedDocument
 from mongodm.fields import StringField, ListField, EmbeddedDocumentField
 from mongodm.fields import EmailField
-from mongodm.validators import ValidationError, Required
+from mongodm.validators import ValidationError, Required, Unic
 from mongodm.ext.wtf import MongodmForm
 from pymongo import Connection
 import wtforms
@@ -110,6 +110,24 @@ class DocumentTest(unittest.TestCase):
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], '')
         self.assertRaises(ValidationError, setattr, author, 'email_address', '')
 
+    def testUnicValidator(self):
+        db = self.get_db()
+        class Author(Document):
+            __collection__ = "authors"
+            """
+            email has to be unic on a specific db
+            """
+            email_address = EmailField(validators=[Required(), Unic(db)])
+
+        author = Author()
+        author.email_address = 'titi@titi.com'
+        Author.collection(db).insert(author)
+        
+        author = Author()
+        self.assertRaises(ValidationError, setattr, author, 'email_address', 'titi@titi.com')
+
+        Author.collection(db).remove()
+
     def testWTFormsSharedValidation(self):
         class Author(Document):
             email_address = EmailField()
@@ -143,7 +161,9 @@ class DocumentTest(unittest.TestCase):
         form = AuthorForm(obj=author)
         assert form.data['id'] == author._id
         assert form.data['id'] == author.id
-        
+        assert form.data['email_address'] == author.email_address
+        Author.collection(db).remove() #cleaning up db
+
     def testUp(self):
         pass
 

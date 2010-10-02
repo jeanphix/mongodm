@@ -49,7 +49,7 @@ class BaseDocument(object):
     def __setattr__(self, name, value):
         """ setting attribute """
         if not name.startswith('_') and self._fields.has_key(name):
-            if self._fields[name].validate(value, object=self):
+            if self._fields[name].validate(value, self):
                 self._datas[name] = value
             else:
                 raise ValidationError
@@ -89,7 +89,7 @@ class BaseField(object):
     def validate(self, value, object = None):
         """ validate datas """
         for validator in self._validators:
-            validator(value, field=self, object=object)
+            validator(value, object)
         return True
 
     def _to_dict(self, value):
