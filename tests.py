@@ -110,7 +110,7 @@ class DocumentTest(unittest.TestCase):
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], '')
         self.assertRaises(ValidationError, setattr, author, 'email_address', '')
 
-    def testWTForm(self):
+    def testWTFormsSharedValidation(self):
         class Author(Document):
             email_address = EmailField()
 
@@ -120,11 +120,27 @@ class DocumentTest(unittest.TestCase):
 
         form = AuthorForm()
         form.process(email_address = 'toto')
-        assert form.data == {'email_address' : 'toto'} #wtforms ok
+        assert form.data == {'id': None, 'email_address' : 'toto'} #wtforms ok
         form.validate()
         assert form.errors != {} #MongodmForm ok
         assert form.errors == {'email_address': [u'Invalid email address.']}
 
+    def testWTFormsFormObject(self):
+        class Author(Document):
+            __collection__ = 'authors'
+            email_address = EmailField()
+
+        class AuthorForm(MongodmForm):
+            __forclass__ = Author
+            email_address = wtforms.TextField('Email Address')
+
+        author = Author()
+        author.email_address = 'some@bo.dy'
+        #persists
+        db = self.get_db()
+        Author.collection(db).insert(author)
+        form = AuthorForm(obj=author)
+        
     def testUp(self):
         pass
 

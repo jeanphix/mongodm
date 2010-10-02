@@ -23,10 +23,10 @@ class DocumentMeta(type):
         return collection
 
 class BaseDocument(object):
-    
+
     __metaclass__ = DocumentMeta
 
-    def __init__(self, _id=None,  datas=None):
+    def __init__(self, _id=None, datas=None):
         """ constructor """
         self._id = _id
         self._fields = {}
@@ -81,7 +81,7 @@ class BaseField(object):
         else:
             if instance._datas:
                 return instance._datas[self.name]
-        
+
     def validate(self, value):
         """ validate datas """
         for validator in self._validators:

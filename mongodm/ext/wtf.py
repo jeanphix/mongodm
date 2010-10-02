@@ -1,8 +1,10 @@
-from wtforms import Form
+from wtforms import Form, HiddenField
 
 class MongodmForm(Form):
 
     __forclass__ = None
+
+    id = HiddenField()
 
     def validate(self):
         """ overriding validation """
@@ -17,5 +19,3 @@ class MongodmForm(Form):
                         success = False
                         getattr(self, name).errors.append(e.args[0])                        
         return success
-  
-    
