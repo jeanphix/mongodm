@@ -3,7 +3,7 @@ import unittest
 from mongodm.document import Document, EmbeddedDocument
 from mongodm.fields import StringField, ListField, EmbeddedDocumentField
 from mongodm.fields import EmailField
-from mongodm.validators import ValidationError, Required, Unic
+from mongodm.validators import ValidationError, Required, Unique
 from mongodm.ext.wtf import MongodmForm
 from pymongo import Connection
 import wtforms
