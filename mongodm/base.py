@@ -33,7 +33,7 @@ class BaseDocument(object):
         self._datas = {}
         #building private datas and fields
         for name in dir(self.__class__):
-            if not name.startswith('_'):
+            if not name.startswith('_') and not name == 'id':
                 field = getattr(self.__class__, name)
                 field.name = name
                 self._fields[name] = field
@@ -65,6 +65,10 @@ class BaseDocument(object):
         for field in self._fields:
             dict[field] = self._fields[field]._to_dict(self._datas[field])
         return dict
+
+    @property
+    def id(self):
+        return self._id
 
 class BaseField(object):
 

@@ -10,7 +10,7 @@ class MongodmForm(Form):
         """ overriding validation """
         success = super(MongodmForm, self).validate()
         for name in dir(self.__forclass__):
-            if not name.startswith('_'):
+            if not name.startswith('_') and not name == 'id':
                 if hasattr(self, name):
                     field = getattr(self.__forclass__, name)
                     try:

@@ -139,7 +139,10 @@ class DocumentTest(unittest.TestCase):
         #persists
         db = self.get_db()
         Author.collection(db).insert(author)
+        assert author._id != None
         form = AuthorForm(obj=author)
+        assert form.data['id'] == author._id
+        assert form.data['id'] == author.id
         
     def testUp(self):
         pass
