@@ -30,6 +30,9 @@ class Email(Regex):
         super(Email, self).__init__(r'^.+@[^.].*\.[a-z]{2,10}$', re.IGNORECASE, message)
 
 class Required(object):
+    """
+    Required validator
+    """
     def __init__(self, message=_(u'Required.')):
         self.message = message
 
@@ -37,7 +40,7 @@ class Required(object):
         if not value or isinstance(value, basestring) and not value.strip():
             raise ValidationError(self.message)
 
-class Unic(object):
+class Unique(object):
     """
     Unic validator
     """

@@ -110,14 +110,14 @@ class DocumentTest(unittest.TestCase):
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], '')
         self.assertRaises(ValidationError, setattr, author, 'email_address', '')
 
-    def testUnicValidator(self):
+    def testUniqueValidator(self):
         db = self.get_db()
         class Author(Document):
             __collection__ = "authors"
             """
             email has to be unic on a specific db
             """
-            email_address = EmailField(validators=[Required(), Unic(db)])
+            email_address = EmailField(validators=[Required(), Unique(db)])
 
         author = Author()
         author.email_address = 'titi@titi.com'
