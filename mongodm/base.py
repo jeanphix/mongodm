@@ -22,6 +22,37 @@ class DocumentMeta(type):
         collection.__itemclass__ = cls
         return collection
 
+class BaseField(object):
+
+    name = None #bounded name
+
+    def __init__(self, validators=[]):
+        """ constructor """
+        self._validators=validators
+
+    def __get__(self, instance, owner):
+        """ foreign getter """
+        if instance is None:
+            return self
+        else:
+            if instance._datas:
+                return instance._datas[self.name]
+
+    def validate(self, value, object = None, class_=None):
+        """ validate datas """
+        for validator in self._validators:
+            validator(value, field=self, object=object, class_=class_)
+        return True
+
+    def _to_dict(self, value):
+        return value
+
+    def _from_dict(self, object, datas):
+        setattr(object, self.name, datas)
+
+    def get_default(self):
+        return None
+      
 class BaseDocument(object):
 
     __metaclass__ = DocumentMeta
@@ -33,7 +64,8 @@ class BaseDocument(object):
         self._datas = {}
         #building private datas and fields
         for name in dir(self.__class__):
-            if not name.startswith('_') and not name == 'id':
+            if not name.startswith('_') and not name == 'id'\
+                and issubclass(getattr(self.__class__, name).__class__, BaseField):
                 field = getattr(self.__class__, name)
                 field.name = name
                 self._fields[name] = field
@@ -73,34 +105,3 @@ class BaseDocument(object):
     @id.setter
     def id(self, value):
         self._id = value
-
-class BaseField(object):
-
-    name = None #bounded name
-
-    def __init__(self, validators=[]):
-        """ constructor """
-        self._validators=validators
-
-    def __get__(self, instance, owner):
-        """ foreign getter """
-        if instance is None:
-            return self
-        else:
-            if instance._datas:
-                return instance._datas[self.name]
-
-    def validate(self, value, object = None, class_=None):
-        """ validate datas """
-        for validator in self._validators:
-            validator(value, field=self, object=object, class_=class_)
-        return True
-
-    def _to_dict(self, value):
-        return value
-
-    def _from_dict(self, object, datas):
-        setattr(object, self.name, datas)
-
-    def get_default(self):
-        return None
