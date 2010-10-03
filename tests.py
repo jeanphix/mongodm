@@ -143,7 +143,7 @@ class DocumentTest(unittest.TestCase):
         assert form.errors != {} #MongodmForm ok
         assert form.errors == {'email_address': [u'Invalid email address.']}
 
-    def testWTFormsFormObject(self):
+    def testWTFormsFromObject(self):
         class Author(Document):
             __collection__ = 'authors'
             email_address = EmailField()
@@ -163,6 +163,17 @@ class DocumentTest(unittest.TestCase):
         assert form.data['id'] == author.id
         assert form.data['email_address'] == author.email_address
         Author.collection(db).remove() #cleaning up db
+
+    def testWTFormsPopulateObject(self):
+        class Author(Document):
+            __collection__ = 'authors'
+            email_address = EmailField()
+
+        class AuthorForm(MongodmForm):
+            __forclass__ = Author
+            email_address = wtforms.TextField('Email Address')
+        
+        
 
     def testUp(self):
         pass

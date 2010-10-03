@@ -19,3 +19,4 @@ class MongodmForm(Form):
                         success = False
                         getattr(self, name).errors.append(e.args[0])                        
         return success
+

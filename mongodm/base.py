@@ -70,6 +70,10 @@ class BaseDocument(object):
     def id(self):
         return self._id
 
+    @id.setter
+    def id(self, value):
+        self._id = value
+
 class BaseField(object):
 
     name = None #bounded name
