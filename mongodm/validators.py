@@ -18,7 +18,7 @@ class Regex(object):
         self.regex = regex
         self.message = message
         
-    def __call__(self, value, field=None, object=None):
+    def __call__(self, value, field=None, object=None, class_=None):
         if value and not self.regex.match(value or u''):
             raise ValidationError(self.message)
             
@@ -33,10 +33,10 @@ class Required(object):
     """
     Required validator
     """
-    def __init__(self, message=_(u'Required.')):
+    def __init__(self, message=_(u'Thie field is required.')):
         self.message = message
 
-    def __call__(self, value, field=None, object=None):
+    def __call__(self, value, field=None, object=None, class_=None):
         if not value or isinstance(value, basestring) and not value.strip():
             raise ValidationError(self.message)
 
@@ -48,7 +48,11 @@ class Unique(object):
         self.message = message
         self.db = db
 
-    def __call__(self, value, field=None, object=None):
-        if object.__class__.collection(self.db).\
-                                          find_one({field.name: value}) != None:
+    def __call__(self, value, field=None, object=None, class_=None):
+        if object and object.__class__.collection(self.db).\
+                                            find_one({field.name: value}) != None:
             raise ValidationError(self.message)
+        else:
+            if class_ and class_.collection(self.db).\
+                                            find_one({field.name: value}) != None:
+              raise ValidationError(self.message)

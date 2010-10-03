@@ -54,3 +54,9 @@ class EmailField(BaseField):
         """ constructor """
         validators.extend([Email()])
         super(EmailField, self).__init__(validators=validators, *args, **kwargs)
+
+class EnumField(BaseField):
+    def __init__(self, enum, *args, **kwargs):
+        """ construct """
+        self._enum = enum
+        super(EnumField, self).__init__(*args, **kwargs)

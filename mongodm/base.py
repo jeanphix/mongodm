@@ -86,10 +86,10 @@ class BaseField(object):
             if instance._datas:
                 return instance._datas[self.name]
 
-    def validate(self, value, object = None):
+    def validate(self, value, object = None, class_=None):
         """ validate datas """
         for validator in self._validators:
-            validator(value, field=self, object=object)
+            validator(value, field=self, object=object, class_=class_)
         return True
 
     def _to_dict(self, value):

@@ -14,7 +14,7 @@ class MongodmForm(Form):
                 if hasattr(self, name):
                     field = getattr(self.__forclass__, name)
                     try:
-                        field.validate(getattr(getattr(self, name), 'data'))
+                        field.validate(getattr(getattr(self, name), 'data'), class_=self.__forclass__)
                     except ValueError, e:
                         success = False
                         getattr(self, name).errors.append(e.args[0])                        
