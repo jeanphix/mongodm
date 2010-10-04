@@ -70,6 +70,8 @@ class Integer(object):
         if value and value != '':
             try:
                 int(value)
+                if int(value) != value:
+                    raise ValidationError(self.message)
             except:
                 raise ValidationError(self.message)
 

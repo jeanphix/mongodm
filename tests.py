@@ -145,6 +145,28 @@ class DocumentTest(unittest.TestCase):
         assert test_backed.integer == 12
         test_backed.integer += 1
         assert test_backed.integer == 13
+        test_backed.integer = 'test'
+        self.assertRaises(ValidationError, test_backed._to_dict)
+        test_backed.integer = 12.5
+        self.assertRaises(ValidationError, test_backed._to_dict)
+        Test.collection(db).remove()
+
+    def testDecimalField(self):
+        class Test(Document):
+            __collection__ = 'tests'
+            decimal = DecimalField()
+        test = Test()
+        test.decimal = 12.5
+        assert test.decimal == 12.5
+        db = self.get_db()
+        Test.collection(db).insert(test)
+        test_backed = Test.collection(db).find_one()
+        test_backed = test_backed.to(Test)
+        assert test_backed.decimal == 12.5
+        test_backed.decimal += 1
+        assert test_backed.decimal == 13.5
+        test_backed.decimal = 'test'
+        self.assertRaises(ValidationError, test_backed._to_dict)
         Test.collection(db).remove()
 
     def testWTFormsSharedValidation(self):
