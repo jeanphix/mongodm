@@ -131,6 +131,22 @@ class DocumentTest(unittest.TestCase):
         self.assertRaises(ValidationError, author._to_dict)
         Author.collection(db).remove()
 
+    def testIntegerField(self):
+        class Test(Document):
+            __collection__ = 'tests'
+            integer = IntegerField()
+        test = Test()
+        test.integer = 12
+        assert test.integer == 12
+        db = self.get_db()
+        Test.collection(db).insert(test)
+        test_backed = Test.collection(db).find_one()
+        test_backed = test_backed.to(Test)
+        assert test_backed.integer == 12
+        test_backed.integer += 1
+        assert test_backed.integer == 13
+        Test.collection(db).remove()
+
     def testWTFormsSharedValidation(self):
         class Author(Document):
             email_address = EmailField()
