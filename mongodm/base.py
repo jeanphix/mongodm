@@ -42,7 +42,6 @@ class BaseField(object):
         """ validate datas """
         for validator in self._validators:
             validator(value, field=self, object=object, class_=class_)
-        return True
 
     def _to_dict(self, value):
         return value
@@ -81,15 +80,13 @@ class BaseDocument(object):
     def __setattr__(self, name, value):
         """ setting attribute """
         if not name.startswith('_') and self._fields.has_key(name):
-            if self._fields[name].validate(value, object=self):
-                self._datas[name] = value
-            else:
-                raise ValidationError
+            self._datas[name] = value
         else:
             super(BaseDocument, self).__setattr__(name, value)
 
     def _to_dict(self):
         """ getting datas as dict """
+        self.validate()
         if self._id:
             dict = {'_id': self._id}
         else:
@@ -97,7 +94,12 @@ class BaseDocument(object):
         for field in self._fields:
             dict[field] = self._fields[field]._to_dict(self._datas[field])
         return dict
-
+        
+    def validate(self):
+        """ validate data """
+        for field in self._fields:
+            self._fields[field].validate(self._datas[field], object=self)
+            
     @property
     def id(self):
         return self._id

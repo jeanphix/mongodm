@@ -1,4 +1,5 @@
 from wtforms import Form, HiddenField
+from mongodm.base import BaseField
 
 class MongodmForm(Form):
 
@@ -10,7 +11,9 @@ class MongodmForm(Form):
         """ overriding validation """
         success = super(MongodmForm, self).validate()
         for name in dir(self.__forclass__):
-            if not name.startswith('_') and not name == 'id':
+            if not name.startswith('_')\
+                   and not name == 'id'\
+                   and issubclass(getattr(self.__forclass__, name).__class__, BaseField):
                 if hasattr(self, name):
                     field = getattr(self.__forclass__, name)
                     try:

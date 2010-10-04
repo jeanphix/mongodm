@@ -100,15 +100,18 @@ class DocumentTest(unittest.TestCase):
         author = Author()
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], 'foo')
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], 'foo.bar')
-        self.assertRaises(ValidationError, setattr, author, 'email_address', 'foo')
-        self.assertRaises(ValidationError, setattr, author, 'email_address', 'foo.bar')
-
+        author.email_address = 'foo'
+        self.assertRaises(ValidationError, author._to_dict)
+        author.email_address = 'foo.bar'
+        self.assertRaises(ValidationError, author._to_dict)
+        
     def testRequiredValidator(self):
         class Author(Document):
             email_address = EmailField(validators=[Required()])
         author = Author()
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], '')
-        self.assertRaises(ValidationError, setattr, author, 'email_address', '')
+        author.email_address = ''
+        self.assertRaises(ValidationError, author._to_dict)
 
     def testUniqueValidator(self):
         db = self.get_db()
@@ -122,10 +125,10 @@ class DocumentTest(unittest.TestCase):
         author = Author()
         author.email_address = 'titi@titi.com'
         Author.collection(db).insert(author)
-        
-        author = Author()
-        self.assertRaises(ValidationError, setattr, author, 'email_address', 'titi@titi.com')
 
+        author = Author()
+        author.email_address = 'titi@titi.com'
+        self.assertRaises(ValidationError, author._to_dict)
         Author.collection(db).remove()
 
     def testWTFormsSharedValidation(self):
