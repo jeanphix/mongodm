@@ -1,5 +1,5 @@
 from mongodm.base import BaseField, get_document_class
-from mongodm.validators import Email
+from mongodm.validators import Email, Decimal, Integer
 
 class ListField(BaseField):
     def __init__(self, allowed, *args, **kwargs):
@@ -60,3 +60,15 @@ class EnumField(BaseField):
         """ construct """
         self._enum = enum
         super(EnumField, self).__init__(*args, **kwargs)
+
+class IntegerField(BaseField):
+    def __init__(self, validators=[], *args, **kwargs):
+        """ constructor """
+        validators.extend([Integer()])
+        super(IntegerField, self).__init__(validators=validators, *args, **kwargs)
+
+class DecimalField(BaseField):
+    def __init__(self, validators=[], *args, **kwargs):
+        """ constructor """
+        validators.extend([Decimal()])
+        super(DecimalField, self).__init__(validators=validators, *args, **kwargs)

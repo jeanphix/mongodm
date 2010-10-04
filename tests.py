@@ -2,7 +2,7 @@ import unittest
 
 from mongodm.document import Document, EmbeddedDocument
 from mongodm.fields import StringField, ListField, EmbeddedDocumentField
-from mongodm.fields import EmailField
+from mongodm.fields import EmailField, IntegerField, DecimalField
 from mongodm.validators import ValidationError, Required, Unique
 from mongodm.ext.wtf import MongodmForm
 from pymongo import Connection
@@ -176,8 +176,6 @@ class DocumentTest(unittest.TestCase):
             __forclass__ = Author
             email_address = wtforms.TextField('Email Address')
         
-        
-
     def testUp(self):
         pass
 

@@ -33,7 +33,7 @@ class Required(object):
     """
     Required validator
     """
-    def __init__(self, message=_(u'Thie field is required.')):
+    def __init__(self, message=_(u'This field is required.')):
         self.message = message
 
     def __call__(self, value, field=None, object=None, class_=None):
@@ -58,3 +58,31 @@ class Unique(object):
                                             find_one({field.name: value})
         if backed != None and not object or object and backed != None and backed._id != object.id:
             raise ValidationError(self.message)
+
+class Integer(object):
+    """
+    Integer validator
+    """
+    def __init__(self, message=_(u'Invalid integer.')):
+        self.message = message
+
+    def __call__(self, value, field=None, object=None, class_=None):
+        if value and value != '':
+            try:
+                int(value)
+            except:
+                raise ValidationError(self.message)
+
+class Decimal(object):
+    """
+    Decimal validator
+    """
+    def __init__(self, message=_(u'Invalid integer.')):
+        self.message = message
+
+    def __call__(self, value, field=None, object=None, class_=None):
+        if value and value != '':
+            try:
+                float(value)
+            except:
+                raise ValidationError(self.message)
