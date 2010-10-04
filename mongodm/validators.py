@@ -42,17 +42,19 @@ class Required(object):
 
 class Unique(object):
     """
-    Unic validator
+    Unique validator
     """
     def __init__(self, db, message=_(u'Already exists in database.')):
         self.message = message
         self.db = db
 
     def __call__(self, value, field=None, object=None, class_=None):
-        if object and object.__class__.collection(self.db).\
-                                            find_one({field.name: value}) != None:
-            raise ValidationError(self.message)
+        if object:
+            backed = object.__class__.collection(self.db).\
+                                            find_one({field.name: value})
         else:
-            if class_ and class_.collection(self.db).\
-                                            find_one({field.name: value}) != None:
-              raise ValidationError(self.message)
+            if class_:
+                backed = class_.collection(self.db).\
+                                            find_one({field.name: value})
+        if backed != None and not object or object and backed != None and backed._id != object.id:
+            raise ValidationError(self.message)
