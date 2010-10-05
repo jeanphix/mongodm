@@ -151,8 +151,8 @@ class DocumentTest(unittest.TestCase):
         class Author(Document):
             __collection__ = "authors"
             """
-            email has to be unic on a specific db
-            """
+email has to be unic on a specific db
+"""
             email_address = EmailField(validators=[Required(), Unique(db)])
 
         author = Author()
