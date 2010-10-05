@@ -1,5 +1,7 @@
 from mongodm.base import BaseField, get_document_class
 from mongodm.validators import Email, Decimal, Integer
+from pymongo.dbref import DBRef
+from bson.son import SON
 
 class ListField(BaseField):
     def __init__(self, allowed, *args, **kwargs):
@@ -28,7 +30,6 @@ class ListField(BaseField):
         return []
       
 class EmbeddedDocumentField(BaseField):
-
     def __init__(self, allowed, *args, **kwargs):
         """ construct """
         self._allowed = allowed
@@ -72,3 +73,19 @@ class DecimalField(BaseField):
         """ constructor """
         validators.extend([Decimal()])
         super(DecimalField, self).__init__(validators=validators, *args, **kwargs)
+
+class ReferenceField(BaseField):
+    """ DBRef field """
+    def __init__(self, allowed, db, *args, **kwargs):
+        """ construct """
+        self._allowed = allowed
+        self._db = db
+        super(ReferenceField, self).__init__(*args, **kwargs)
+    
+    def _to_dict(self, value):
+        """ getting DBRef """
+        if value:
+            return DBRef(value.__class__.__collection__, value._id)
+    def _from_dict(self, object, datas):
+        """ hydrating embedded document from dict """
+        print(datas)

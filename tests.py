@@ -2,10 +2,10 @@ import unittest
 
 from mongodm.document import Document, EmbeddedDocument
 from mongodm.fields import StringField, ListField, EmbeddedDocumentField
-from mongodm.fields import EmailField, IntegerField, DecimalField
+from mongodm.fields import EmailField, IntegerField, DecimalField, ReferenceField
 from mongodm.validators import ValidationError, Required, Unique
 from mongodm.ext.wtf import MongodmForm
-from pymongo import Connection
+from mongodm.connection import Connection
 import wtforms
 
 
@@ -93,6 +93,39 @@ class DocumentTest(unittest.TestCase):
         assert post._id == postbacked._id
         Post.collection(db).insert(postbacked)
         assert post._id == postbacked._id #check if it was an update
+
+    def testReferenceField(self):
+
+        db = self.get_db()
+
+        class A(Document):
+            __collection__ = 'as'
+            label = StringField()
+            b = ReferenceField('B', db)
+
+        class B(Document):
+            __collection__ = 'bs'
+            label = StringField()
+            a = ReferenceField(A, db)
+
+
+        a = A()
+        a.label = 'i\'m a A'
+        A.collection(db).insert(a)
+
+        b = B()
+        b.label = 'i\'m a B'
+        B.collection(db).insert(b)
+        
+        a.b = b
+        A.collection(db).save(a)
+        
+        assert a.b._id == b.id
+
+        backed = A.collection(db).find_one()
+        
+        A.collection(db).remove()
+        B.collection(db).remove()
 
     def testEmailValidator(self):
         class Author(Document):
