@@ -86,6 +86,15 @@ class ReferenceField(BaseField):
         """ getting DBRef """
         if value:
             return DBRef(value.__class__.__collection__, value._id)
-    def _from_dict(self, object, datas):
-        """ hydrating embedded document from dict """
-        print(datas)
+
+    def __get__(self, instance, owner):
+        """ foreign getter """
+        if isinstance(self._allowed, str):
+            self._allowed = get_document_class(self._allowed)
+        if instance is None:
+            return self
+        else:
+            if instance._datas and instance._datas[self.name].__class__ == self._allowed:
+                return instance._datas[self.name]
+            else:
+                return self._allowed(_id=instance._datas[self.name].id, datas=self._db.dereference(instance._datas[self.name]))

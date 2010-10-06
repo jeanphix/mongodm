@@ -108,7 +108,6 @@ class DocumentTest(unittest.TestCase):
             label = StringField()
             a = ReferenceField(A, db)
 
-
         a = A()
         a.label = 'i\'m a A'
         A.collection(db).insert(a)
@@ -123,7 +122,11 @@ class DocumentTest(unittest.TestCase):
         assert a.b._id == b.id
 
         backed = A.collection(db).find_one()
-        
+
+        backed = backed.to(A)
+        assert backed.b.label == 'i\'m a B'
+        assert backed.b.id == b.id
+
         A.collection(db).remove()
         B.collection(db).remove()
 
@@ -151,8 +154,8 @@ class DocumentTest(unittest.TestCase):
         class Author(Document):
             __collection__ = "authors"
             """
-email has to be unic on a specific db
-"""
+            email has to be unic on a specific db
+            """
             email_address = EmailField(validators=[Required(), Unique(db)])
 
         author = Author()
