@@ -10,6 +10,8 @@ from mongodm.tree import TreeDocument
 
 import wtforms
 
+connection = Connection('localhost', 27017)
+db = connection['test-database']
 
 class User(EmbeddedDocument):
     first_name = StringField()
@@ -22,6 +24,7 @@ class Comment(EmbeddedDocument):
 
 class Post(Document):
     __collection__ = 'posts'
+    __db__ = db
     title = StringField()
     content = StringField()
     comments = ListField(Comment)
@@ -76,10 +79,9 @@ class DocumentTest(unittest.TestCase):
         assert post.comments[0].replies[0].author == 'jean-philippe'
 
         #persists
-        db = self.get_db()
-        Post.collection(db).insert(post)
+        Post.collection().insert(post)
         #retrieving
-        document = Post.collection(db).find_one()
+        document = Post.collection().find_one()
 
         assert document.__class__.__name__ == 'MongoDocument'
         assert document._id == post._id
@@ -94,48 +96,48 @@ class DocumentTest(unittest.TestCase):
         assert postbacked.comments[0].replies[0].message == 'reply to my message'
         assert postbacked.comments[0].replies[0].author == 'jean-philippe'
         assert post._id == postbacked._id
-        Post.collection(db).insert(postbacked)
+        Post.collection().insert(postbacked)
         assert post._id == postbacked._id #check if it was an update
 
     def testReferenceField(self):
 
-        db = self.get_db()
-
         class A(Document):
             __collection__ = 'as'
+            __db__ = db
             label = StringField()
             b = ReferenceField('B', db)
 
         class B(Document):
             __collection__ = 'bs'
+            __db__ = db
             label = StringField()
             a = ReferenceField(A, db)
 
-        A.collection(db).remove()
-        B.collection(db).remove()
+        A.collection().remove()
+        B.collection().remove()
 
         a = A()
         a.label = 'i\'m a A'
-        A.collection(db).insert(a)
+        A.collection().insert(a)
 
         b = B()
         b.label = 'i\'m a B'
-        B.collection(db).insert(b)
+        B.collection().insert(b)
         
         a.b = b
-        A.collection(db).save(a)
+        A.collection().save(a)
         
         assert a.b._id == b.id
 
-        backed = A.collection(db).find_one()
+        backed = A.collection().find_one()
 
         backed = backed.to(A)
 
         assert backed.b.label == 'i\'m a B'
         assert backed.b.id == b.id
 
-        A.collection(db).remove()
-        B.collection(db).remove()
+        A.collection().remove()
+        B.collection().remove()
 
     def testEmailValidator(self):
         class Author(Document):
@@ -157,33 +159,34 @@ class DocumentTest(unittest.TestCase):
         self.assertRaises(ValidationError, author._to_dict)
 
     def testUniqueValidator(self):
-        db = self.get_db()
         class Author(Document):
-            __collection__ = "authors"
             """
             email has to be unic on a specific db
             """
+            __collection__ = "authors"
+            __db__ = db
             email_address = EmailField(validators=[Required(), Unique(db)])
 
         author = Author()
         author.email_address = 'titi@titi.com'
-        Author.collection(db).insert(author)
+        Author.collection().insert(author)
 
         author = Author()
         author.email_address = 'titi@titi.com'
         self.assertRaises(ValidationError, author._to_dict)
-        Author.collection(db).remove()
+        Author.collection().remove()
 
     def testIntegerField(self):
         class Test(Document):
             __collection__ = 'tests'
+            __db__ = db
             integer = IntegerField()
+
         test = Test()
         test.integer = 12
         assert test.integer == 12
-        db = self.get_db()
-        Test.collection(db).insert(test)
-        test_backed = Test.collection(db).find_one()
+        Test.collection().insert(test)
+        test_backed = Test.collection().find_one()
         test_backed = test_backed.to(Test)
         assert test_backed.integer == 12
         test_backed.integer += 1
@@ -192,48 +195,55 @@ class DocumentTest(unittest.TestCase):
         self.assertRaises(ValidationError, test_backed._to_dict)
         test_backed.integer = 12.5
         self.assertRaises(ValidationError, test_backed._to_dict)
-        Test.collection(db).remove()
+        Test.collection().remove()
 
     def testDecimalField(self):
         class Test(Document):
             __collection__ = 'tests'
+            __db__ = db
             decimal = DecimalField()
         test = Test()
         test.decimal = 12.5
         assert test.decimal == 12.5
-        db = self.get_db()
-        Test.collection(db).insert(test)
-        test_backed = Test.collection(db).find_one()
+        Test.collection().insert(test)
+        test_backed = Test.collection().find_one()
         test_backed = test_backed.to(Test)
         assert test_backed.decimal == 12.5
         test_backed.decimal += 1
         assert test_backed.decimal == 13.5
         test_backed.decimal = 'test'
         self.assertRaises(ValidationError, test_backed._to_dict)
-        Test.collection(db).remove()
+        Test.collection().remove()
 
     def testDocumentTree(self):
+
         class TreeNode(TreeDocument):
             __collection__ = 'nodes'
+            __db__ = db
+            __proxy__ = TreeProxy(db)
             label = StringField()
             parent = ReferenceField('TreeNode')
 
-        db = self.get_db()
         root_node = TreeNode()
         root_node.label = 'root'
-        TreeNode.collection(db).insert(root_node)
+        TreeNode.collection().insert(root_node)
 
         first_child = TreeNode()
         first_child.label = 'first_child'
         first_child.parent = root_node
-        TreeNode.collection(db).insert(first_child)
+        TreeNode.collection().insert(first_child)
 
         second_child = TreeNode()
         second_child.label = 'first_child'
         second_child.parent = first_child
-        TreeNode.collection(db).insert(second_child)
+        TreeNode.collection().insert(second_child)
 
-        print(second_child._datas)
+        third_child = TreeNode()
+        third_child.label = 'third_child'
+        third_child.parent = first_child
+        TreeNode.collection().insert(third_child)
+
+        
 
     def testWTFormsSharedValidation(self):
         class Author(Document):
@@ -253,6 +263,7 @@ class DocumentTest(unittest.TestCase):
     def testWTFormsFromObject(self):
         class Author(Document):
             __collection__ = 'authors'
+            __db__ = db
             email_address = EmailField()
 
         class AuthorForm(MongodmForm):
@@ -262,14 +273,13 @@ class DocumentTest(unittest.TestCase):
         author = Author()
         author.email_address = 'some@bo.dy'
         #persists
-        db = self.get_db()
-        Author.collection(db).insert(author)
+        Author.collection().insert(author)
         assert author._id != None
         form = AuthorForm(obj=author)
         assert form.data['id'] == author._id
         assert form.data['id'] == author.id
         assert form.data['email_address'] == author.email_address
-        Author.collection(db).remove() #cleaning up db
+        Author.collection().remove() #cleaning up db
 
     def testWTFormsPopulateObject(self):
         class Author(Document):
@@ -283,12 +293,12 @@ class DocumentTest(unittest.TestCase):
     def testUp(self):
         pass
 
-    def get_db(self):
-        connection = Connection('localhost', 27017)
-        return connection['test-database']
+#    def get_db(self):
+#        connection = Connection('localhost', 27017)
+#        return connection['test-database']
 
     def tearDown(self):
-        Post.collection(self.get_db()).remove()
+        Post.collection().remove()
 
 if __name__ == '__main__':
     unittest.main()

@@ -10,7 +10,7 @@ class TreeProxy():
         """ return tree from dict or SON """
         pass
 
-    def find_tree_from_path(self, path):
+    def find_tree_from_path(self, path, db):
         """ finding tree from path """
         pass
 
@@ -23,10 +23,11 @@ class TreeDocument(BaseDocument):
     @property
     def children(self):
         """ getting node children """
-        pass
+        self._children = TreeProxy().find_tree_from_path(self.path)
+        return self._children
 
     def _to_dict(self):
-        """ getting object as dict for mongo """
+        """ obejct to dict for mongo """
         if self.parent:
             self.path = self.parent.path + str(self.parent.id) + '/'
         return super(TreeDocument, self)._to_dict()

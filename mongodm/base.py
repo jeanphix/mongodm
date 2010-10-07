@@ -15,9 +15,9 @@ class DocumentMeta(type):
         _document_registry[name] = new_class
         return new_class
 
-    def collection(cls, db):
+    def collection(cls):
         """ getting pymongo collection for document class """
-        collection = getattr(db, cls.__collection__)
+        collection = getattr(cls.__db__, cls.__collection__)
         collection.__class__ = CollectionProxy
         collection.__itemclass__ = cls
         return collection
