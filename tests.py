@@ -165,7 +165,7 @@ class DocumentTest(unittest.TestCase):
             """
             __collection__ = "authors"
             __db__ = db
-            email_address = EmailField(validators=[Required(), Unique(db)])
+            email_address = EmailField(validators=[Required(), Unique()])
 
         author = Author()
         author.email_address = 'titi@titi.com'
@@ -202,6 +202,7 @@ class DocumentTest(unittest.TestCase):
             __collection__ = 'tests'
             __db__ = db
             decimal = DecimalField()
+
         test = Test()
         test.decimal = 12.5
         assert test.decimal == 12.5
@@ -242,7 +243,10 @@ class DocumentTest(unittest.TestCase):
         third_child.parent = first_child
         TreeNode.collection().insert(third_child)
 
-        print(root_node.children)
+        assert root_node.children.count() == 3
+        assert first_child.children.count() == 2
+        assert second_child.children.count() == 0
+        assert third_child.children.count() == 0
 
     def testWTFormsSharedValidation(self):
         class Author(Document):
