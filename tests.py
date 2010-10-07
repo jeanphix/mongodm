@@ -225,13 +225,15 @@ class DocumentTest(unittest.TestCase):
 
         first_child = TreeNode()
         first_child.label = 'first_child'
-
         first_child.parent = root_node
-
         TreeNode.collection(db).insert(first_child)
 
-#        print(root_node._to_dict())
-#        print(first_child._to_dict())
+        second_child = TreeNode()
+        second_child.label = 'first_child'
+        second_child.parent = first_child
+        TreeNode.collection(db).insert(second_child)
+
+        print(second_child._datas)
 
     def testWTFormsSharedValidation(self):
         class Author(Document):

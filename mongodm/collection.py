@@ -28,12 +28,6 @@ class CollectionProxy(pymongo.collection.Collection):
                                                             *args, **kwargs)
         return document._id
 
-#    def update(self, document, *args, **kwargs):
-#        """ proxying save """
-#        document._id = super(CollectionProxy, self).update(document._to_dict(),
-#                                                            *args, **kwargs)
-#        return document._id
-
     def save(self, document, *args, **kwargs):
         """ proxying save """
         document._id = super(CollectionProxy, self).save(document._to_dict(),

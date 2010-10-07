@@ -15,8 +15,9 @@ class TreeProxy():
         pass
 
 class TreeDocument(BaseDocument):
-    path = StringField()
-    order = IntegerField()
+    """ Tree document class """
+    path = StringField(default='/')
+    order = IntegerField(default=0)
     depth = IntegerField()
 
     @property
@@ -27,9 +28,5 @@ class TreeDocument(BaseDocument):
     def _to_dict(self):
         """ getting object as dict for mongo """
         if self.parent:
-            print self.parent._datas
-#            self.path = self.parent.path + '/'
-        else:
-            if self.id:
-                self.path = '/'
+            self.path = self.parent.path + str(self.parent.id) + '/'
         return super(TreeDocument, self)._to_dict()
