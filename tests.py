@@ -6,6 +6,8 @@ from mongodm.fields import EmailField, IntegerField, DecimalField, ReferenceFiel
 from mongodm.validators import ValidationError, Required, Unique
 from mongodm.ext.wtf import MongodmForm
 from mongodm.connection import Connection
+from mongodm.tree import TreeDocument
+
 import wtforms
 
 
@@ -78,6 +80,7 @@ class DocumentTest(unittest.TestCase):
         Post.collection(db).insert(post)
         #retrieving
         document = Post.collection(db).find_one()
+
         assert document.__class__.__name__ == 'MongoDocument'
         assert document._id == post._id
         assert document.comments[0].replies[0].message == 'reply to my message'
@@ -108,6 +111,9 @@ class DocumentTest(unittest.TestCase):
             label = StringField()
             a = ReferenceField(A, db)
 
+        A.collection(db).remove()
+        B.collection(db).remove()
+
         a = A()
         a.label = 'i\'m a A'
         A.collection(db).insert(a)
@@ -124,6 +130,7 @@ class DocumentTest(unittest.TestCase):
         backed = A.collection(db).find_one()
 
         backed = backed.to(A)
+
         assert backed.b.label == 'i\'m a B'
         assert backed.b.id == b.id
 
@@ -204,6 +211,27 @@ class DocumentTest(unittest.TestCase):
         test_backed.decimal = 'test'
         self.assertRaises(ValidationError, test_backed._to_dict)
         Test.collection(db).remove()
+
+    def testDocumentTree(self):
+        class TreeNode(TreeDocument):
+            __collection__ = 'nodes'
+            label = StringField()
+            parent = ReferenceField('TreeNode')
+
+        db = self.get_db()
+        root_node = TreeNode()
+        root_node.label = 'root'
+        TreeNode.collection(db).insert(root_node)
+
+        first_child = TreeNode()
+        first_child.label = 'first_child'
+
+        first_child.parent = root_node
+
+        TreeNode.collection(db).insert(first_child)
+
+#        print(root_node._to_dict())
+#        print(first_child._to_dict())
 
     def testWTFormsSharedValidation(self):
         class Author(Document):

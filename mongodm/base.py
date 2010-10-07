@@ -26,9 +26,10 @@ class BaseField(object):
 
     name = None #bounded name
 
-    def __init__(self, validators=[]):
+    def __init__(self, validators=[], default=None):
         """ constructor """
         self._validators=validators
+        self._default = default
 
     def __get__(self, instance, owner):
         """ foreign getter """
@@ -50,7 +51,7 @@ class BaseField(object):
         setattr(object, self.name, datas)
 
     def get_default(self):
-        return None
+        return self._default
       
 class BaseDocument(object):
 

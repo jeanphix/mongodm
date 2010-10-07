@@ -1,6 +1,5 @@
 import pymongo
 from bson import SON
-import pdb
 
 class MongoDocument(SON):
     """ simple dot access class for pymongo backed document """
@@ -28,6 +27,12 @@ class CollectionProxy(pymongo.collection.Collection):
         document._id = super(CollectionProxy, self).insert(document._to_dict(),
                                                             *args, **kwargs)
         return document._id
+
+#    def update(self, document, *args, **kwargs):
+#        """ proxying save """
+#        document._id = super(CollectionProxy, self).update(document._to_dict(),
+#                                                            *args, **kwargs)
+#        return document._id
 
     def save(self, document, *args, **kwargs):
         """ proxying save """

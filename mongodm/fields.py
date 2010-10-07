@@ -67,6 +67,12 @@ class IntegerField(BaseField):
         """ constructor """
         validators.extend([Integer()])
         super(IntegerField, self).__init__(validators=validators, *args, **kwargs)
+    
+    def get_default(self):
+        if self._default:
+            return self._default
+        else:
+            return 0
 
 class DecimalField(BaseField):
     def __init__(self, validators=[], *args, **kwargs):
@@ -74,9 +80,15 @@ class DecimalField(BaseField):
         validators.extend([Decimal()])
         super(DecimalField, self).__init__(validators=validators, *args, **kwargs)
 
+    def get_default(self):
+        if self._default:
+            return self._default
+        else:
+            return 0
+
 class ReferenceField(BaseField):
     """ DBRef field """
-    def __init__(self, allowed, db, *args, **kwargs):
+    def __init__(self, allowed, db=None, *args, **kwargs):
         """ construct """
         self._allowed = allowed
         self._db = db
@@ -96,5 +108,9 @@ class ReferenceField(BaseField):
         else:
             if instance._datas and instance._datas[self.name].__class__ == self._allowed:
                 return instance._datas[self.name]
-            else:
+            elif instance._datas[self.name] != None:
                 return self._allowed(_id=instance._datas[self.name].id, datas=self._db.dereference(instance._datas[self.name]))
+
+    def set_db(self, db):
+        """ setting database """
+        self._db = db
