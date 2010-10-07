@@ -247,6 +247,10 @@ class DocumentTest(unittest.TestCase):
         assert first_child.children.count() == 2
         assert second_child.children.count() == 0
         assert third_child.children.count() == 0
+        assert root_node.level == 0
+        assert first_child.level == 1
+        assert second_child.level == 2
+        assert third_child.level == 2
 
     def testWTFormsSharedValidation(self):
         class Author(Document):

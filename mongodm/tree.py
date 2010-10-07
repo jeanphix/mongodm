@@ -7,7 +7,7 @@ class TreeDocument(BaseDocument):
     """ Tree document class """
     path = StringField(default='')
     priority = IntegerField(default=0)
-    depth = IntegerField(default=0)
+    level = IntegerField(default=0)
 
     @property
     def children(self):
@@ -22,4 +22,5 @@ class TreeDocument(BaseDocument):
         """ object to dict for mongo """
         if self.parent:
             self.path = self.parent.path + str(self.parent.id) + ','
+            self.level = self.parent.level + 1
         return super(TreeDocument, self)._to_dict()
