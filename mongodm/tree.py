@@ -1,18 +1,21 @@
+import re
+from pymongo import ASCENDING, DESCENDING
 from mongodm.base import BaseDocument
 from mongodm.fields import StringField, IntegerField
-import re
 
 class TreeDocument(BaseDocument):
     """ Tree document class """
     path = StringField(default='')
-    order = IntegerField(default=0)
-    depth = IntegerField()
+    priority = IntegerField(default=0)
+    depth = IntegerField(default=0)
 
     @property
     def children(self):
         """ getting node children """
         path = self.path + str(self.id) + ','
-        self._children = self.__class__.collection().find({'path' : re.compile('^' + path)})
+        self._children = self.__class__.collection().find(
+            {'path' : re.compile('^' + path)}
+        ).sort([('path', ASCENDING), ('priority', DESCENDING)])
         return self._children
 
     def _to_dict(self):
