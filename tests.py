@@ -105,13 +105,13 @@ class DocumentTest(unittest.TestCase):
             __collection__ = 'as'
             __db__ = db
             label = StringField()
-            b = ReferenceField('B', db)
+            b = ReferenceField('B')
 
         class B(Document):
             __collection__ = 'bs'
             __db__ = db
             label = StringField()
-            a = ReferenceField(A, db)
+            a = ReferenceField(A)
 
         A.collection().remove()
         B.collection().remove()
@@ -220,7 +220,6 @@ class DocumentTest(unittest.TestCase):
         class TreeNode(TreeDocument):
             __collection__ = 'nodes'
             __db__ = db
-            __proxy__ = TreeProxy(db)
             label = StringField()
             parent = ReferenceField('TreeNode')
 
@@ -243,7 +242,7 @@ class DocumentTest(unittest.TestCase):
         third_child.parent = first_child
         TreeNode.collection().insert(third_child)
 
-        
+        print(root_node.children)
 
     def testWTFormsSharedValidation(self):
         class Author(Document):
@@ -292,10 +291,6 @@ class DocumentTest(unittest.TestCase):
         
     def testUp(self):
         pass
-
-#    def get_db(self):
-#        connection = Connection('localhost', 27017)
-#        return connection['test-database']
 
     def tearDown(self):
         Post.collection().remove()

@@ -88,10 +88,9 @@ class DecimalField(BaseField):
 
 class ReferenceField(BaseField):
     """ DBRef field """
-    def __init__(self, allowed, db=None, *args, **kwargs):
+    def __init__(self, allowed, *args, **kwargs):
         """ construct """
         self._allowed = allowed
-        self._db = db
         super(ReferenceField, self).__init__(*args, **kwargs)
     
     def _to_dict(self, value):
@@ -103,14 +102,11 @@ class ReferenceField(BaseField):
         """ foreign getter """
         if isinstance(self._allowed, str):
             self._allowed = get_document_class(self._allowed)
+        db = self._allowed.__db__
         if instance is None:
             return self
         else:
             if instance._datas and instance._datas[self.name].__class__ == self._allowed:
                 return instance._datas[self.name]
             elif instance._datas[self.name] != None:
-                return self._allowed(_id=instance._datas[self.name].id, datas=self._db.dereference(instance._datas[self.name]))
-
-    def set_db(self, db):
-        """ setting database """
-        self._db = db
+                return self._allowed(_id=instance._datas[self.name].id, datas=db.dereference(instance._datas[self.name]))
