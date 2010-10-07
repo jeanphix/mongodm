@@ -6,7 +6,7 @@ from mongodm.fields import EmailField, IntegerField, DecimalField, ReferenceFiel
 from mongodm.validators import ValidationError, Required, Unique
 from mongodm.ext.wtf import MongodmForm
 from mongodm.connection import Connection
-from mongodm.tree import TreeDocument
+from mongodm.ext.tree import TreeDocument
 
 import wtforms
 
