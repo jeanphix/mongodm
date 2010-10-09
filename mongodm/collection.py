@@ -24,13 +24,13 @@ class CollectionProxy(pymongo.collection.Collection):
     """ collection proxy """
     def insert(self, document, *args, **kwargs):
         """ proxying insert """
-        document._id = super(CollectionProxy, self).insert(document._to_dict(),
+        document._id = super(CollectionProxy, self).insert(document.to_dict(),
                                                             *args, **kwargs)
         return document._id
 
     def save(self, document, *args, **kwargs):
         """ proxying save """
-        document._id = super(CollectionProxy, self).save(document._to_dict(),
+        document._id = super(CollectionProxy, self).save(document.to_dict(),
                                                             *args, **kwargs)
         return document._id
 

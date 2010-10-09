@@ -44,7 +44,7 @@ class BaseField(object):
         for validator in self._validators:
             validator(value, field=self, object=object, class_=class_)
 
-    def _to_dict(self, value):
+    def to_dict(self, value):
         return value
 
     def _from_dict(self, object, datas):
@@ -85,7 +85,7 @@ class BaseDocument(object):
         else:
             super(BaseDocument, self).__setattr__(name, value)
 
-    def _to_dict(self):
+    def to_dict(self):
         """ getting datas as dict """
         self.validate()
         if self._id:
@@ -93,9 +93,9 @@ class BaseDocument(object):
         else:
             dict={}
         for field in self._fields:
-            dict[field] = self._fields[field]._to_dict(self._datas[field])
+            dict[field] = self._fields[field].to_dict(self._datas[field])
         return dict
-        
+
     def validate(self):
         """ validate data """
         for field in self._fields:

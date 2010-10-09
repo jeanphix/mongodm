@@ -64,7 +64,7 @@ class DocumentTest(unittest.TestCase):
         comment.author = 'jean-philippe'
         comment.message = 'my message'
         post.comments.append(comment)
-        assert post._to_dict() == {
+        assert post.to_dict() == {
             'content': 'first post content',
             'comments': [
                 {'message': 'my message',
@@ -146,9 +146,9 @@ class DocumentTest(unittest.TestCase):
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], 'foo')
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], 'foo.bar')
         author.email_address = 'foo'
-        self.assertRaises(ValidationError, author._to_dict)
+        self.assertRaises(ValidationError, author.to_dict)
         author.email_address = 'foo.bar'
-        self.assertRaises(ValidationError, author._to_dict)
+        self.assertRaises(ValidationError, author.to_dict)
         
     def testRequiredValidator(self):
         class Author(Document):
@@ -156,7 +156,7 @@ class DocumentTest(unittest.TestCase):
         author = Author()
         self.assertRaises(ValidationError, author._fields['email_address']._validators[0], '')
         author.email_address = ''
-        self.assertRaises(ValidationError, author._to_dict)
+        self.assertRaises(ValidationError, author.to_dict)
 
     def testUniqueValidator(self):
         class Author(Document):
@@ -173,7 +173,7 @@ class DocumentTest(unittest.TestCase):
 
         author = Author()
         author.email_address = 'titi@titi.com'
-        self.assertRaises(ValidationError, author._to_dict)
+        self.assertRaises(ValidationError, author.to_dict)
         Author.collection().remove()
 
     def testIntegerField(self):
@@ -192,9 +192,9 @@ class DocumentTest(unittest.TestCase):
         test_backed.integer += 1
         assert test_backed.integer == 13
         test_backed.integer = 'test'
-        self.assertRaises(ValidationError, test_backed._to_dict)
+        self.assertRaises(ValidationError, test_backed.to_dict)
         test_backed.integer = 12.5
-        self.assertRaises(ValidationError, test_backed._to_dict)
+        self.assertRaises(ValidationError, test_backed.to_dict)
         Test.collection().remove()
 
     def testDecimalField(self):
@@ -213,7 +213,7 @@ class DocumentTest(unittest.TestCase):
         test_backed.decimal += 1
         assert test_backed.decimal == 13.5
         test_backed.decimal = 'test'
-        self.assertRaises(ValidationError, test_backed._to_dict)
+        self.assertRaises(ValidationError, test_backed.to_dict)
         Test.collection().remove()
 
     def testDocumentTree(self):

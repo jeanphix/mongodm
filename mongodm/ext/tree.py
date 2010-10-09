@@ -18,9 +18,9 @@ class TreeDocument(BaseDocument):
         ).sort([('path', ASCENDING), ('priority', DESCENDING)])
         return self._children
 
-    def _to_dict(self):
+    def to_dict(self):
         """ object to dict for mongo """
         if self.parent:
             self.path = self.parent.path + str(self.parent.id) + ','
             self.level = self.parent.level + 1
-        return super(TreeDocument, self)._to_dict()
+        return super(TreeDocument, self).to_dict()

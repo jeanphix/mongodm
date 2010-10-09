@@ -9,11 +9,11 @@ class ListField(BaseField):
         self._allowed = allowed
         super(ListField, self).__init__(*args, **kwargs)
         
-    def _to_dict(self, value):
+    def to_dict(self, value):
         """ getting collection as dict """
         dict = []
         for item in value:
-            dict.append(item._to_dict())
+            dict.append(item.to_dict())
         return dict
 
     def _from_dict(self, object, datas):
@@ -35,10 +35,10 @@ class EmbeddedDocumentField(BaseField):
         self._allowed = allowed
         super(EmbeddedDocumentField, self).__init__(*args, **kwargs)
 
-    def _to_dict(self, value):
+    def to_dict(self, value):
         """ getting embedded document as dict """
         if value:
-            return value._to_dict()
+            return value.to_dict()
 
     def _from_dict(self, object, datas):
         """ hydrating embedded document from dict """
@@ -93,7 +93,7 @@ class ReferenceField(BaseField):
         self._allowed = allowed
         super(ReferenceField, self).__init__(*args, **kwargs)
     
-    def _to_dict(self, value):
+    def to_dict(self, value):
         """ getting DBRef """
         if value:
             return DBRef(value.__class__.__collection__, value._id)
