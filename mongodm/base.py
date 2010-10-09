@@ -47,7 +47,7 @@ class BaseField(object):
     def to_dict(self, value):
         return value
 
-    def _from_dict(self, object, datas):
+    def from_dict(self, object, datas):
         setattr(object, self.name, datas)
 
     def get_default(self):
@@ -70,7 +70,7 @@ class BaseDocument(object):
                 field.name = name
                 self._fields[name] = field
                 if datas and datas[name]:
-                    self._fields[name]._from_dict(self, datas[name])
+                    self._fields[name].from_dict(self, datas[name])
                 else:
                     self._datas[name] = self._fields[name].get_default() #default datas
 

@@ -16,7 +16,7 @@ class ListField(BaseField):
             dict.append(item.to_dict())
         return dict
 
-    def _from_dict(self, object, datas):
+    def from_dict(self, object, datas):
         """ hydrating collection from dict """
         list = []
         if isinstance(self._allowed, str):
@@ -40,7 +40,7 @@ class EmbeddedDocumentField(BaseField):
         if value:
             return value.to_dict()
 
-    def _from_dict(self, object, datas):
+    def from_dict(self, object, datas):
         """ hydrating embedded document from dict """
         if isinstance(self._allowed, str):
             self._allowed = get_document_class(self._allowed)
