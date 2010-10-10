@@ -1,7 +1,6 @@
 from mongodm.base import BaseField, get_document_class
 from mongodm.validators import Email, Decimal, Integer
 from pymongo.dbref import DBRef
-from bson.son import SON
 
 class ListField(BaseField):
     def __init__(self, allowed, *args, **kwargs):

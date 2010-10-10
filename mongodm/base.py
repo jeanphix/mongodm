@@ -1,5 +1,5 @@
 from mongodm.collection import CollectionProxy
-from mongodm.validators import ValidationError
+from pymongo.objectid import ObjectId
 
 _document_registry = {}
 
@@ -35,8 +35,7 @@ class BaseField(object):
         """ foreign getter """
         if instance is None:
             return self
-        else:
-            if instance._datas:
+        elif instance._datas:
                 return instance._datas[self.name]
 
     def validate(self, value, obj=None, class_=None):
@@ -59,7 +58,7 @@ class BaseDocument(object):
 
     def __init__(self, _id=None, datas=None):
         """ constructor """
-        self._id = _id
+        self._id = _id #@todo : move _id into self._datas
         self._fields = {}
         self._datas = {}
         #building private datas and fields
@@ -89,7 +88,7 @@ class BaseDocument(object):
         """ getting datas as dict """
         self.validate()
         if self._id:
-            dict = {'_id': self._id}
+            dict = {'_id': ObjectId(self._id)}
         else:
             dict={}
         for field in self._fields:

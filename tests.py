@@ -170,7 +170,6 @@ class DocumentTest(unittest.TestCase):
         author = Author()
         author.email_address = 'titi@titi.com'
         Author.collection().insert(author)
-
         author = Author()
         author.email_address = 'titi@titi.com'
         self.assertRaises(ValidationError, author.to_dict)
