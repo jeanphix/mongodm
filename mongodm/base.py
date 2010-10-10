@@ -39,10 +39,10 @@ class BaseField(object):
             if instance._datas:
                 return instance._datas[self.name]
 
-    def validate(self, value, object = None, class_=None):
+    def validate(self, value, obj=None, class_=None):
         """ validate datas """
         for validator in self._validators:
-            validator(value, field=self, object=object, class_=class_)
+            validator(value, field=self, obj=obj, class_=class_)
 
     def to_dict(self, value):
         return value
@@ -99,7 +99,7 @@ class BaseDocument(object):
     def validate(self):
         """ validate data """
         for field in self._fields:
-            self._fields[field].validate(self._datas[field], object=self)
+            self._fields[field].validate(self._datas[field], obj=self)
             
     @property
     def id(self):

@@ -18,7 +18,7 @@ class Regex(object):
         self.regex = regex
         self.message = message
         
-    def __call__(self, value, field=None, object=None, class_=None):
+    def __call__(self, value, field=None, obj=None, class_=None):
         if value and not self.regex.match(value or u''):
             raise ValidationError(self.message)
             
@@ -36,7 +36,7 @@ class Required(object):
     def __init__(self, message=_(u'This field is required.')):
         self.message = message
 
-    def __call__(self, value, field=None, object=None, class_=None):
+    def __call__(self, value, field=None, obj=None, class_=None):
         if not value or isinstance(value, basestring) and not value.strip():
             raise ValidationError(self.message)
 
@@ -47,15 +47,15 @@ class Unique(object):
     def __init__(self, message=_(u'Already exists in database.')):
         self.message = message
 
-    def __call__(self, value, field=None, object=None, class_=None):
-        if object:
-            backed = object.__class__.collection().\
+    def __call__(self, value, field=None, obj=None, class_=None):
+        if obj:
+            backed = obj.__class__.collection().\
                                             find_one({field.name: value})
         else:
             if class_:
                 backed = class_.collection().\
                                             find_one({field.name: value})
-        if backed != None and not object or object and backed != None and backed._id != object.id:
+        if backed != None and not obj or obj and backed != None and str(backed._id) != str(obj._id):
             raise ValidationError(self.message)
 
 class Integer(object):
@@ -65,7 +65,7 @@ class Integer(object):
     def __init__(self, message=_(u'Invalid integer.')):
         self.message = message
 
-    def __call__(self, value, field=None, object=None, class_=None):
+    def __call__(self, value, field=None, obj=None, class_=None):
         if value and value != '':
             try:
                 int(value)
@@ -81,7 +81,7 @@ class Decimal(object):
     def __init__(self, message=_(u'Invalid integer.')):
         self.message = message
 
-    def __call__(self, value, field=None, object=None, class_=None):
+    def __call__(self, value, field=None, obj=None, class_=None):
         if value and value != '':
             try:
                 float(value)

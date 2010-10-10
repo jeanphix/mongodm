@@ -69,6 +69,7 @@ class IntegerField(BaseField):
         super(IntegerField, self).__init__(validators=validators, *args, **kwargs)
     
     def get_default(self):
+        """ getting default value """
         if self._default:
             return self._default
         else:
@@ -81,6 +82,7 @@ class DecimalField(BaseField):
         super(DecimalField, self).__init__(validators=validators, *args, **kwargs)
 
     def get_default(self):
+        """ getting default value """
         if self._default:
             return self._default
         else:
@@ -95,8 +97,10 @@ class ReferenceField(BaseField):
     
     def to_dict(self, value):
         """ getting DBRef """
-        if value:
+        if value and not isinstance(value, DBRef):
             return DBRef(value.__class__.__collection__, value._id)
+        else:
+            return value
 
     def __get__(self, instance, owner):
         """ foreign getter """

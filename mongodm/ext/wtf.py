@@ -7,6 +7,12 @@ class MongodmForm(Form):
 
     id = HiddenField()
 
+    def __init__(self, formdata=None, obj=None, prefix='', **kwargs):
+        """ constructor override """
+        self._obj = obj
+        super(MongodmForm, self).__init__(formdata=formdata, obj=obj, prefix=prefix, **kwargs)
+
+
     def validate(self):
         """ overriding validation """
         success = super(MongodmForm, self).validate()
@@ -17,7 +23,10 @@ class MongodmForm(Form):
                 if hasattr(self, name):
                     field = getattr(self.__forclass__, name)
                     try:
-                        field.validate(getattr(getattr(self, name), 'data'), class_=self.__forclass__)
+                        if self._obj:
+                            field.validate(getattr(getattr(self, name), 'data'), obj=self._obj)
+                        else:
+                            field.validate(getattr(getattr(self, name), 'data'), class_=self.__forclass__)
                     except ValueError, e:
                         success = False
                         getattr(self, name).errors.append(e.args[0])                        

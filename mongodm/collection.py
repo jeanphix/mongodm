@@ -1,5 +1,6 @@
 import pymongo
 from bson import SON
+#from mongodm.base import get_document_class
 
 class MongoDocument(SON):
     """ simple dot access class for pymongo backed document """
@@ -10,6 +11,8 @@ class MongoDocument(SON):
             super(MongoDocument, self).__setitem__(key, value)
             
     def to(self, new_class):
+#        if isinstance(new_class, str):
+#            new_class = get_document_class(new_class)
         object = new_class(_id=self._id, datas = self._datas)
         return object
 
